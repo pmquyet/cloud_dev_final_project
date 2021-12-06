@@ -1,5 +1,6 @@
+import dateFormat from 'dateformat'
 import { History } from 'history'
-// import update from 'immutability-helper'
+import update from 'immutability-helper'
 import * as React from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
@@ -87,10 +88,10 @@ export const Todos: React.FC<Props> = (props) => {
         done: !todo.done
       })
 
-      // const todos_temp = update(todos, {
-      //   [pos]: { done: { $set: !todo.done } }
-      // })
-      // setTodos(todos_temp)
+      const todos_temp = update(todos, {
+        [pos]: { done: { $set: !todo.done } }
+      })
+      setTodos(todos_temp)
     } catch {
       alert('Todo check  failed')
     }
@@ -99,8 +100,8 @@ export const Todos: React.FC<Props> = (props) => {
   const calculateDueDate = (): string => {
     const date = new Date()
     date.setDate(date.getDate() + 7)
-    // return dateFormat(date, 'yyyy-mm-dd') as string
-    return ''
+
+    return dateFormat(date, 'yyyy-mm-dd') as string
   }
 
   return (

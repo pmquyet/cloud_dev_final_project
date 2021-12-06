@@ -1,13 +1,53 @@
-// import React from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import * as serviceWorker from './serviceWorker'
-import 'semantic-ui-css/semantic.min.css'
-import { makeAuthRouting } from './routing'
+import App from './App'
+import Auth from './auth/Auth'
+import reportWebVitals from './reportWebVitals'
+import { createBrowserHistory } from 'history'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+const history = createBrowserHistory()
+// const history = createHistory()
 
-ReactDOM.render(makeAuthRouting(), document.getElementById('root'))
+const auth_input = new Auth(history)
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister()
+const handleAuthentication = (props: any) => {
+  const location = props.location
+  if (/access_token|id_token|error/.test(location.hash)) {
+    auth_input.handleAuthentication()
+  }
+}
+
+ReactDOM.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={} />
+      </Routes>
+    </BrowserRouter>
+
+    {/* <App auth={auth} {...props} /> */}
+  </React.StrictMode>,
+  document.getElementById('root')
+)
+
+// {
+/* <Router history={history}>
+<div>
+  <Route
+    path="/callback"
+    render={props => {
+      handleAuthentication(props)
+      return <Callback />
+    }}
+  />
+  <Route
+    render={props => {
+      return <App auth={auth} {...props} />
+    }}
+  />
+</div>
+</Router> */
+// }
+
+reportWebVitals()
