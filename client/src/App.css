@@ -1,3 +1,4 @@
+@import '~antd/dist/antd.css';
 .next-steps .fa-link {
   margin-right: 5px;
 }
@@ -32,4 +33,61 @@
 
 .result-block-container .result-block {
   opacity: 1;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  min-height: 3vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  padding: 2px;
+  color: rgb(203, 204, 195);
+  margin: 5px;
+}
+
+.App-header-body {
+  min-height: 3vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  padding: 2px;
+  color: rgb(2, 1, 10);
+  margin: 5px;
+}
+
+.dropzone {
+  margin-right: 2px;
+  text-align: center;
+  padding: 20px;
+  border: 3px dashed #858282;
+  background-color: #fafafa;
+  color: #bdbdbd;
+}
+
+.button-Click {
+  margin-right: 2px;
+  margin-top: 6px;
+  min-height: 5vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  background-color: #8d8f9255;
+  color: #020c18;
+}
+
+.textarea {
+  width: 500px;
+  height: 600px;
 }
