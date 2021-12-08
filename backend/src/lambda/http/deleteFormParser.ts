@@ -2,38 +2,32 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
+import { cors, httpErrorHandler } from 'middy/middlewares'
+import { DeleteFormParser } from '../../helpers/formparsers'
+import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
-import { GetTodos } from '../../helpers/todos'
-import { getUserId } from '../utils'
-
-// TODO: Get all TODO items for a current user
-const logger = createLogger('Get Todo Items')
+const logger = createLogger('Update Todo Item')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    logger.info('Processing event: ' + event)
+    const todoId = event.pathParameters.todoId
+    // TODO: Remove a TODO item by id
+    const userId = getUserId(event)
+
     try {
-      // Write your code here
-      // TODO: Get all TODO items for a current user
-      logger.info('Processing event: ', event)
-
-      const userId = getUserId(event)
-      const todos = await GetTodos(userId)
-
+      await DeleteFormParser(todoId, userId)
       return {
         statusCode: 200,
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify({
-          items: todos
-        })
+        body: ''
       }
-
-      return undefined
     } catch (error) {
       logger.error('Error: ' + error.message)
+
       return {
         statusCode: 500,
         headers: {
@@ -45,7 +39,7 @@ export const handler = middy(
   }
 )
 
-handler.use(
+handler.use(httpErrorHandler()).use(
   cors({
     credentials: true
   })

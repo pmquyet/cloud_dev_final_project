@@ -1,35 +1,35 @@
-import 'source-map-support/register'
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import 'source-map-support/register'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
-
-import { UpdateTodo } from '../../helpers/todos'
-import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { CreateFPRequest } from '../../requests/CreateFPRequest'
 import { getUserId } from '../utils'
+import { CreateFormParser } from '../../helpers/formparsers'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('Update Todo Item')
+const logger = createLogger('Create Todo Item')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-      logger.info('Processing event: ' + event)
-      const todoId = event.pathParameters.todoId
-      const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-      // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+      const newTodo: CreateFPRequest = JSON.parse(event.body)
+      // TODO: Implement creating a new TODO item
       const userId = getUserId(event)
 
-      await UpdateTodo(todoId, updatedTodo, userId)
+      // TODO: Implement creating a new TODO item
+      const newItem = await CreateFormParser(newTodo, userId)
       return {
-        statusCode: 200,
+        statusCode: 201,
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
-        body: ''
+        body: JSON.stringify({
+          newItem
+        })
       }
     } catch (error) {
       logger.error('Error: ' + error.message)
+
       return {
         statusCode: 500,
         headers: {

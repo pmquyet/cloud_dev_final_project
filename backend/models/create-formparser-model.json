@@ -3,16 +3,13 @@
   "title": "group",
   "type": "object",
   "properties": {
-    "name": {
+    "ClientRef": {
       "type": "string"
     },
-    "dueDate": {
+    "SUPPLIER": {
       "type": "string"
     }
   },
-  "required": [
-    "name",
-    "dueDate"
-  ],
+  "required": ["ClientRef", "SUPPLIER"],
   "additionalProperties": false
 }

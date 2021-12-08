@@ -3,28 +3,28 @@ import * as AWS from 'aws-sdk'
 const AWSXRay = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
-import { TodoItem } from '../models/TodoItem'
+import { FormParserItem } from '../models/FormParserItem'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
-const logger = createLogger('TodosAccess')
+const logger = createLogger('FormParsersAccess')
 
 // TODO: Implement the dataLayer logic
-export class TodosAccess {
+export class FormParsersAccess {
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly todosTable = process.env.TODOS_TABLE,
+    private readonly fpsTable = process.env.FPS_TABLE,
     private readonly s3 = new XAWS.S3({ signatureVersion: 'v4' }),
     private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
     private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
   ) {}
 
-  async GetTodos(userId: string): Promise<TodoItem[]> {
+  async GetFormParsers(userId: string): Promise<FormParserItem[]> {
     logger.info('Getting all todo items')
 
     const result = await this.docClient
       .query({
-        TableName: this.todosTable,
+        TableName: this.fpsTable,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId
@@ -33,44 +33,44 @@ export class TodosAccess {
       })
       .promise()
 
-    return result.Items as TodoItem[]
+    return result.Items as FormParserItem[]
   }
 
-  async CreateTodo(todoItem: TodoItem): Promise<TodoItem> {
+  async CreateFormParser(fpItem: FormParserItem): Promise<FormParserItem> {
     logger.info('Creating a todo item')
-    const newTodoItem = {
-      ...todoItem,
-      attachmentUrl: `https://${this.bucketName}.s3.amazonaws.com/${todoItem.todoId}`
+    const newFPItem = {
+      ...fpItem,
+      attachmentUrl: `https://${this.bucketName}.s3.amazonaws.com/${fpItem.id}`
     }
 
     await this.docClient
       .put({
-        TableName: this.todosTable,
-        Item: newTodoItem
+        TableName: this.fpsTable,
+        Item: newFPItem
       })
       .promise()
 
-    return newTodoItem
+    return newFPItem
   }
 
-  async UpdateTodo(todoItem: TodoItem): Promise<string> {
-    logger.info(`Updating a todo with ID ${todoItem.todoId}`)
+  async UpdateFormParser(fpItem: FormParserItem): Promise<string> {
+    logger.info(`Updating a todo with ID ${fpItem.id}`)
 
     await this.docClient
       .update({
-        TableName: this.todosTable,
+        TableName: this.fpsTable,
         Key: {
-          userId: todoItem.userId,
-          todoId: todoItem.todoId
+          userId: fpItem.userId,
+          todoId: fpItem.id
         },
         ConditionExpression: 'todoId = :todoId',
         UpdateExpression:
           'set #n = :name, createdAt = :createdAt, done = :done',
         ExpressionAttributeValues: {
-          ':name': todoItem.name,
-          ':createdAt': todoItem.createdAt,
-          ':done': todoItem.done,
-          ':todoId': todoItem.todoId
+          // ':name': fpItem.name,
+          // ':createdAt': fpItem.createdAt,
+          // ':done': fpItem.done,
+          ':todoId': fpItem.id
         },
         ExpressionAttributeNames: {
           '#n': 'name'
@@ -82,18 +82,18 @@ export class TodosAccess {
     return 'success'
   }
 
-  async DeleteTodo(todoId: string, userId: string): Promise<string> {
-    logger.info(`Updating a todo with ID ${todoId}`)
+  async DeleteFormParser(id: string, userId: string): Promise<string> {
+    logger.info(`Updating a todo with ID ${id}`)
     await this.docClient
       .delete({
-        TableName: this.todosTable,
+        TableName: this.fpsTable,
         Key: {
           userId: userId,
-          todoId: todoId
+          todoId: id
         },
-        ConditionExpression: 'todoId = :todoId',
+        ConditionExpression: 'id = :id',
         ExpressionAttributeValues: {
-          ':todoId': todoId
+          ':id': id
         }
       })
       .promise()
@@ -101,11 +101,11 @@ export class TodosAccess {
     return userId
   }
 
-  async GenerateUploadUrl(todoId: string): Promise<string> {
-    logger.info(`Generating an upload url for ID ${todoId}`)
+  async GenerateUploadUrl(id: string): Promise<string> {
+    logger.info(`Generating an upload url for ID ${id}`)
     return this.s3.getSignedUrl('putObject', {
       Bucket: this.bucketName,
-      Key: todoId,
+      Key: id,
       Expires: parseInt(this.urlExpiration)
     }) as string
   }

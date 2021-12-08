@@ -1,6 +1,6 @@
 # TODO: Change the name of the org
 org: pmquyet
-app: c5-project
+app: cd-final-project
 service: aws
 
 plugins:
@@ -23,9 +23,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example,
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: pmquyet-serverless-c4-todo-images-${self:provider.stage}
+    FPS_TABLE: Todos-${self:provider.stage}
+    FPS_CREATED_AT_INDEX: CreatedAtIndex
+    ATTACHMENT_S3_BUCKET: cd-final-project-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   logs:
@@ -54,81 +54,47 @@ functions:
           - xray:PutTelemetryRecords
         Resource:
           - '*'
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetFormParsers:
+    handler: src/lambda/http/getFormParsers.handler
     events:
       - http:
           method: get
-          path: todos
+          path: formparser
           cors: true
           authorizer: Auth
 
-    # TODO: Configure this function -
-    # Provide iamRoleStatements property. Decide the Actions and AWS Resource.
-    # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
-    # To validate incoming HTTP requests, we have provided the request schemas in function definition below.
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.FPS_TABLE}/index/${self:provider.environment.FPS_CREATED_AT_INDEX}
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.FPS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
         Resource:
           - '*'
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateFormParser:
+    handler: src/lambda/http/createFormParser.handler
     events:
       - http:
           method: post
-          path: todos
+          path: formparser
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-formparser-model.json)}
 
-    # TODO: Configure this function
-    # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      - Effect: Allow
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
-    events:
-      - http:
-          method: patch
-          path: todos/{todoId}
-          cors: true
-          authorizer: Auth
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Update a new todo item
-            description: Update a new todo item
-            requestModels:
-              'application/json': UpdateTodoRequest
-
-    # TODO: Configure this function
-    # Provide property for setting up CORS, Authorizer, iamRoleStatements
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.FPS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -136,22 +102,20 @@ functions:
         Resource:
           - '*'
 
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteFormParser:
+    handler: src/lambda/http/deleteFormParser.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: formparser/{id}
           cors: true
           authorizer: Auth
 
-    # TODO: Configure this function
-    # Provide property for setting up CORS, Authorizer, iamRoleStatements
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.FPS_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -163,7 +127,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: formparser/{id}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -193,25 +157,25 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
     # TODO: Create a DynamoDB table with local secondary index and a composite key
-    TodosTable:
+    FormParsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: id
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.FPS_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.FPS_CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH

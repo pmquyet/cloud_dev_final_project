@@ -1,12 +1,12 @@
 import { createLogger } from '../utils/logger'
-import { TodosAccess } from './todosAcess'
+import { FormParsersAccess } from './formParsersAcess'
 
 // TODO: Implement the fileStogare logic
 
-const todoAccess = new TodosAccess()
-const logger = createLogger('todos')
+const fpAccess = new FormParsersAccess()
+const logger = createLogger('formparsers')
 
-export async function GenerateUploadUrl(todoId: string): Promise<string> {
+export async function GenerateUploadUrl(fpId: string): Promise<string> {
   logger.info('In GenerateUploadUrl() function')
-  return await todoAccess.GenerateUploadUrl(todoId)
+  return await fpAccess.GenerateUploadUrl(fpId)
 }
