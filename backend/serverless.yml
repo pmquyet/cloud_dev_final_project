@@ -23,7 +23,7 @@ provider:
   # Use these variables in the functions and resouorces section below. For example,
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    FPS_TABLE: Todos-${self:provider.stage}
+    FPS_TABLE: FormParser-${self:provider.stage}
     FPS_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: cd-final-project-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
