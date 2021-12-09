@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Table, Modal } from 'antd'
-
+import { useAuth0 } from '@auth0/auth0-react'
 import '../../../App.css'
 import insertRowToDdbTable from '../aws_dynamoDb/handleTable'
 import connectToAWS from '../connectToAWS'
+import { getFormParsers } from '../../../api/formparser-api'
+import { getSignedUrl } from '../../../api/formparser-api'
 
 const cAWS = connectToAWS()
-const dynamodb = new cAWS.DynamoDB()
 var s3 = new cAWS.S3()
 
 function TableRecord() {
@@ -15,56 +16,44 @@ function TableRecord() {
   const shownPanel = useSelector((state) => state.shownExtractPanel.value)
   const tempdata = useSelector((state) => state.tempData.listData)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [tokenID, setTokenID] = useState()
   const dispatch = useDispatch()
-
+  const { getIdTokenClaims } = useAuth0()
   //useEffect for 1st loading, data will fetch at first screen
   useEffect(() => {
-    var docClient = new cAWS.DynamoDB.DocumentClient()
-    var paramsdb = {
-      TableName: 'CubeTestData'
-    }
-    docClient.scan(paramsdb, function (err, data) {
-      if (err) {
-        console.log(
-          'Unable to query. Error: ' + '\n' + JSON.stringify(err, undefined, 2)
-        )
-      } else {
-        console.log(
-          'Data get form AWS DynamoDB: ' +
-            '\n' +
-            JSON.stringify(data, undefined, 2)
-        )
-        var data1 = data.Items
-        setdata_cb(data1)
+    const getUserMetadata = async () => {
+      try {
+        const res_tokenid = await getIdTokenClaims()
+        const token_id = res_tokenid.__raw
+        setTokenID(token_id)
+        const fplist = await getFormParsers(token_id)
+        setdata_cb(fplist)
+      } catch (e) {
+        console.log(e.message)
       }
-    })
+    }
+    getUserMetadata()
   }, [shownPanel])
 
-  const showModal = () => {
-    setIsModalVisible(true)
-  }
+  const getImage = async (filename) => {
+    try {
+      const openUrl = await getSignedUrl(tokenID, filename)
+      const url = openUrl.uploadUrl
+      window.open(url)
+    } catch (error) {}
 
-  const handleOk = () => {
-    setIsModalVisible(false)
-  }
-
-  const handleCancel = () => {
-    setIsModalVisible(false)
-  }
-
-  const getImage = (filename) => {
-    var presignedGETURL = s3.getSignedUrl(
-      'getObject',
-      {
-        Bucket: process.env.REACT_APP_AWS_S3_BUCKETNAME_CUBETEST,
-        Key: filename, //filename
-        Expires: 360 //time to expire in seconds
-      },
-      (err, url) => {
-        if (err) throw err
-        window.open(url)
-      }
-    )
+    // var presignedGETURL = s3.getSignedUrl(
+    //   'getObject',
+    //   {
+    //     Bucket: process.env.REACT_APP_AWS_S3_BUCKETNAME_CUBETEST,
+    //     Key: filename, //filename
+    //     Expires: 360 //time to expire in seconds
+    //   },
+    //   (err, url) => {
+    //     if (err) throw err
+    //     window.open(url)
+    //   }
+    // )
   }
 
   const columns = [

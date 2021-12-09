@@ -6,7 +6,43 @@
     "ClientRef": {
       "type": "string"
     },
+    "AGE_AT_TEST": {
+      "type": "string"
+    },
+    "AVERAGE_STRESS": {
+      "type": "string"
+    },
+    "CUBE_DIMENSION": {
+      "type": "string"
+    },
+    "DATE_CAST": {
+      "type": "string"
+    },
+    "DATE_TESTED": {
+      "type": "string"
+    },
+    "GRADE": {
+      "type": "string"
+    },
+    "LOCATION": {
+      "type": "string"
+    },
+    "MAX_LOAD": {
+      "type": "string"
+    },
+    "MODE_OF_FAILURE": {
+      "type": "string"
+    },
+    "SPECIFIED_STRENGTH": {
+      "type": "string"
+    },
+    "STRESS_FALURE": {
+      "type": "string"
+    },
     "SUPPLIER": {
+      "type": "string"
+    },
+    "S3FILE_ID": {
       "type": "string"
     }
   },

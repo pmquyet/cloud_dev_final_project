@@ -109,6 +109,15 @@ export class FormParsersAccess {
       Expires: parseInt(this.urlExpiration)
     }) as string
   }
+
+  async GeneratePreSignedUrl(id: string): Promise<string> {
+    logger.info(`Generating presigned url for ID ${id}`)
+    return this.s3.getSignedUrl('getObject', {
+      Bucket: this.bucketName,
+      Key: id,
+      Expires: parseInt(this.urlExpiration)
+    }) as string
+  }
 }
 
 function createDynamoDBClient() {

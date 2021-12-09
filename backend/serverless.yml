@@ -141,6 +141,27 @@ functions:
           - xray:PutTelemetryRecords
         Resource:
           - '*'
+  GeneratePresignedUrl:
+    handler: src/lambda/http/generatePresignedUrl.handler
+    events:
+      - http:
+          method: get
+          path: formparser/{id}/openfile
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+          - s3:PutObject
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+          - s3:ListBucket
+        Resource:
+          - '*'
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources
@@ -165,8 +186,6 @@ resources:
             AttributeType: S
           - AttributeName: id
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -179,7 +198,7 @@ resources:
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: createdAt
+              - AttributeName: id
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
