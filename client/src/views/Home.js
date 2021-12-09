@@ -20,7 +20,7 @@ const Home = () => {
             This application allow user to parser data from scanned pdf form
             using textract services. The data generated will be digested and
             stored. It also allow user to interactive with data. Click this{' '}
-            <a href="https://reactjs.org">video</a> for demo.
+            <a href="https://youtu.be/eKsf_wjE9Ik">video</a> for demo.
           </p>
         </div>
       </Fragment>
