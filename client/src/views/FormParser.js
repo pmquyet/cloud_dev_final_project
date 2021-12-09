@@ -52,7 +52,9 @@ const FormParser = () => {
                 >
                   Process New Data
                 </Button>
-                <Button color="primary">Export To Excel</Button>
+                <Button color="primary" onClick={() => handleExport()}>
+                  Export To Excel
+                </Button>
 
                 {/* <Button color="primary" onClick={() => handleGetData()}>
                   Test with DynamoDB
