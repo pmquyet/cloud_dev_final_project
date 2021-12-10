@@ -12,6 +12,6 @@ export async function GenerateUploadUrl(fpId: string): Promise<string> {
 }
 
 export async function GeneratePreSignedUrl(fpId: string): Promise<string> {
-  logger.info('In GenerateUploadUrl() function')
+  logger.info('In GeneratePresignUrl() function')
   return await fpAccess.GeneratePreSignedUrl(fpId)
 }

@@ -30,7 +30,7 @@ export async function createFormParser(idToken, newTodo) {
 }
 
 export async function deleteFormParser(idToken, id) {
-  await Axios.delete(`${apiEndpoint}/todos/${id}`, {
+  await Axios.delete(`${apiEndpoint}/formparser/${id}`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${idToken}`
@@ -57,7 +57,7 @@ export async function uploadFile(uploadUrl, file) {
 }
 
 export async function getSignedUrl(idToken, id) {
-  const response = await Axios.get(
+  const response = await Axios.put(
     `${apiEndpoint}/formparser/${id}/openfile`,
     '',
     {
@@ -67,5 +67,5 @@ export async function getSignedUrl(idToken, id) {
       }
     }
   )
-  return response.data.uploadUrl
+  return response.data.signeddUrl
 }

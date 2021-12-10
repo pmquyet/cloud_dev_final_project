@@ -1,4 +1,4 @@
-import { FormParsersAccess } from './formParsersAcess'
+import { FormParsersAccess } from '../dataLayer/formParsersAcess'
 // import { AttachmentUtils } from './attachmentUtils'
 import { FormParserItem } from '../models/FormParserItem'
 import { CreateFPRequest } from '../requests/CreateFPRequest'

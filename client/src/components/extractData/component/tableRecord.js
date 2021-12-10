@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Table, Modal } from 'antd'
+import { Table, message, Popconfirm } from 'antd'
 import { useAuth0 } from '@auth0/auth0-react'
 import '../../../App.css'
-import insertRowToDdbTable from '../aws_dynamoDb/handleTable'
+
 import connectToAWS from '../connectToAWS'
 import { getFormParsers } from '../../../api/formparser-api'
 import { getSignedUrl } from '../../../api/formparser-api'
+import { deleteFormParser } from '../../../api/formparser-api'
 
 const cAWS = connectToAWS()
 var s3 = new cAWS.S3()
 
 function TableRecord() {
   const [data_cb, setdata_cb] = useState([])
+  const [refresh, setRefesh] = useState(true)
   const shownPanel = useSelector((state) => state.shownExtractPanel.value)
   const tempdata = useSelector((state) => state.tempData.listData)
-  const [isModalVisible, setIsModalVisible] = useState(false)
+
   const [tokenID, setTokenID] = useState()
   const dispatch = useDispatch()
   const { getIdTokenClaims } = useAuth0()
+
   //useEffect for 1st loading, data will fetch at first screen
   useEffect(() => {
     const getUserMetadata = async () => {
@@ -33,27 +36,20 @@ function TableRecord() {
       }
     }
     getUserMetadata()
-  }, [shownPanel])
+  }, [shownPanel, refresh])
 
   const getImage = async (filename) => {
     try {
       const openUrl = await getSignedUrl(tokenID, filename)
-      const url = openUrl.uploadUrl
-      window.open(url)
+      console.log(openUrl)
+      window.open(openUrl)
     } catch (error) {}
+  }
 
-    // var presignedGETURL = s3.getSignedUrl(
-    //   'getObject',
-    //   {
-    //     Bucket: process.env.REACT_APP_AWS_S3_BUCKETNAME_CUBETEST,
-    //     Key: filename, //filename
-    //     Expires: 360 //time to expire in seconds
-    //   },
-    //   (err, url) => {
-    //     if (err) throw err
-    //     window.open(url)
-    //   }
-    // )
+  const handleDeleteFormParserItem = async (id) => {
+    const del = await deleteFormParser(tokenID, id)
+    setRefesh(!refresh)
+    message.success(`Item with ID: ${id} was deleted.`)
   }
 
   const columns = [
@@ -62,7 +58,8 @@ function TableRecord() {
       dataIndex: 'ClientRef',
       title: 'Ref.No',
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.ClientRef.length - b.ClientRef.length
+      sorter: (a, b) => a.ClientRef.length - b.ClientRef.length,
+      width: 150
     },
     {
       key: 'DATE_CAST',
@@ -153,6 +150,18 @@ function TableRecord() {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.S3FILE_ID.localeCompare(b.S3FILE_ID),
       render: (text, record) => <a onClick={() => getImage(text)}>{text}</a>
+    },
+    {
+      title: 'Action',
+      key: 'Delete',
+      render: (text, record) => (
+        <Popconfirm
+          title="Sure to delete?"
+          onConfirm={() => handleDeleteFormParserItem(record.id)}
+        >
+          <a>Delete</a>
+        </Popconfirm>
+      )
     }
   ]
   function onChange(pagination, sorter, extra) {

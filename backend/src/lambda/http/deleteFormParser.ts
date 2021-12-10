@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
-import { DeleteFormParser } from '../../helpers/formparsers'
+import { DeleteFormParser } from '../../businessLogic/formparsers'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
@@ -12,12 +12,12 @@ const logger = createLogger('Update Todo Item')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing event: ' + event)
-    const todoId = event.pathParameters.todoId
+    const id = event.pathParameters.id
     // TODO: Remove a TODO item by id
     const userId = getUserId(event)
 
     try {
-      await DeleteFormParser(todoId, userId)
+      await DeleteFormParser(id, userId)
       return {
         statusCode: 200,
         headers: {

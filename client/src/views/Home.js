@@ -17,7 +17,7 @@ const Home = () => {
           <h1 className="mb-10">Cloud-developer final project</h1>
 
           <p className="lead">
-            This application allow user to parser data from scanned pdf form
+            This application allow user to parser data from scanned document
             using textract services. The data generated will be digested and
             stored. It also allow user to interactive with data. Click this{' '}
             <a href="https://youtu.be/eKsf_wjE9Ik">video</a> for demo.

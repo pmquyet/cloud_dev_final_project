@@ -89,7 +89,7 @@ export class FormParsersAccess {
         TableName: this.fpsTable,
         Key: {
           userId: userId,
-          todoId: id
+          id: id
         },
         ConditionExpression: 'id = :id',
         ExpressionAttributeValues: {
