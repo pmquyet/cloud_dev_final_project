@@ -55,26 +55,27 @@ export class FormParsersAccess {
 
   async UpdateFormParser(fpItem: FormParserItem): Promise<string> {
     logger.info(`Updating a todo with ID ${fpItem.id}`)
-
+    const userId = fpItem.userId
+    const id = fpItem.id
     await this.docClient
       .update({
         TableName: this.fpsTable,
         Key: {
-          userId: fpItem.userId,
-          todoId: fpItem.id
+          userId,
+          id
         },
-        ConditionExpression: 'todoId = :todoId',
+        // ConditionExpression: 'id = :id',
         UpdateExpression:
-          'set #n = :name, createdAt = :createdAt, done = :done',
-        ExpressionAttributeValues: {
-          // ':name': fpItem.name,
-          // ':createdAt': fpItem.createdAt,
-          // ':done': fpItem.done,
-          ':todoId': fpItem.id
-        },
+          'set #fp_ClientRef = :cr,  DATE_CAST = :dc, DATE_TESTED = :dt',
         ExpressionAttributeNames: {
-          '#n': 'name'
+          '#fp_ClientRef': 'ClientRef'
         },
+        ExpressionAttributeValues: {
+          ':cr': fpItem.ClientRef,
+          ':dc': fpItem.DATE_CAST,
+          ':dt': fpItem.DATE_TESTED
+        },
+
         ReturnValues: 'UPDATED_NEW'
       })
       .promise()

@@ -7,20 +7,21 @@ import '../../../App.css'
 import connectToAWS from '../connectToAWS'
 import { getFormParsers } from '../../../api/formparser-api'
 import { getSignedUrl } from '../../../api/formparser-api'
-import { deleteFormParser } from '../../../api/formparser-api'
-
-const cAWS = connectToAWS()
-var s3 = new cAWS.S3()
+import { deleteFormParser, patchFormParser } from '../../../api/formparser-api'
+import { EditFormParser } from './editFormParser'
 
 function TableRecord() {
   const [data_cb, setdata_cb] = useState([])
   const [refresh, setRefesh] = useState(true)
+  const [editItem, setEditItem] = useState()
   const shownPanel = useSelector((state) => state.shownExtractPanel.value)
   const tempdata = useSelector((state) => state.tempData.listData)
 
   const [tokenID, setTokenID] = useState()
   const dispatch = useDispatch()
   const { getIdTokenClaims } = useAuth0()
+
+  const [visible, setVisible] = useState(false)
 
   //useEffect for 1st loading, data will fetch at first screen
   useEffect(() => {
@@ -50,6 +51,41 @@ function TableRecord() {
     const del = await deleteFormParser(tokenID, id)
     setRefesh(!refresh)
     message.success(`Item with ID: ${id} was deleted.`)
+  }
+
+  const handleEdit = async (item) => {
+    setEditItem(item)
+    setVisible(true)
+  }
+
+  const handleEditOk = async (values) => {
+    console.log('Received values of form: ', values)
+    const editedItem = {
+      userId: editItem.userId,
+      id: editItem.id,
+      createdAt: editItem.createdAt,
+      ClientRef: values.RefNo,
+      AGE_AT_TEST: values.AGE_AT_TEST,
+      AVERAGE_STRESS: values.AVERAGE_STRESS,
+      CUBE_DIMENSION: values.CUBE_DIMENSION,
+      DATE_CAST: values.DATE_CAST,
+      DATE_TESTED: values.DATE_TESTED,
+      GRADE: values.GRADE,
+      LOCATION: values.LOCATION,
+      MAX_LOAD: values.MAX_LOAD,
+      MODE_OF_FAILURE: values.MODE_OF_FAILURE,
+      SPECIFIED_STRENGTH: values.SPECIFIED_STRENGTH,
+      STRESS_FALURE: values.STRESS_FALURE,
+      SUPPLIER: values.SUPPLIER,
+      S3FILE_ID: editItem.S3FILE_ID
+    }
+    await patchFormParser(tokenID, editedItem)
+
+    setVisible(false)
+
+    setRefesh(!refresh)
+    message.success(`Item with original Ref: ${values.RefNo} was updated.`)
+    setEditItem()
   }
 
   const columns = [
@@ -139,8 +175,8 @@ function TableRecord() {
     {
       key: 'MAX_LOAD',
       dataIndex: 'MAX_LOAD',
-      title: 'Max load'
-      // width: 150,
+      title: 'Max load',
+      width: 100
     },
     {
       key: 'S3FILE_ID',
@@ -152,7 +188,7 @@ function TableRecord() {
       render: (text, record) => <a onClick={() => getImage(text)}>{text}</a>
     },
     {
-      title: 'Action',
+      title: 'Delete',
       key: 'Delete',
       render: (text, record) => (
         <Popconfirm
@@ -161,7 +197,14 @@ function TableRecord() {
         >
           <a>Delete</a>
         </Popconfirm>
-      )
+      ),
+      width: 75
+    },
+    {
+      title: 'Edit',
+      key: 'Edit',
+      render: (text, record) => <a onClick={() => handleEdit(record)}>Edit</a>,
+      width: 75
     }
   ]
   function onChange(pagination, sorter, extra) {
@@ -177,6 +220,15 @@ function TableRecord() {
         onChange={onChange}
         scroll={{ y: 'calc(90vh - 6em)' }}
         // style={{ width: "auto" }}
+      />
+
+      <EditFormParser
+        visible={visible}
+        editItem={editItem}
+        onCreate={handleEditOk}
+        onCancel={() => {
+          setVisible(false)
+        }}
       />
     </div>
   )

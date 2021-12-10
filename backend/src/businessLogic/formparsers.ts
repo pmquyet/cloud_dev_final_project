@@ -1,13 +1,12 @@
 import { FormParsersAccess } from '../dataLayer/formParsersAcess'
-// import { AttachmentUtils } from './attachmentUtils'
 import { FormParserItem } from '../models/FormParserItem'
+
 import { CreateFPRequest } from '../requests/CreateFPRequest'
-// import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
 // import * as createError from 'http-errors'
 
-// TODO: Implement businessLogic
 const formParserAccess = new FormParsersAccess()
 const logger = createLogger('formparsers')
 
@@ -46,6 +45,12 @@ export async function CreateFormParser(
   })
 }
 
+export async function UpdateFormparser(
+  updatedFP: FormParserItem
+): Promise<string> {
+  logger.info('In UpdateTodo() function')
+  return await formParserAccess.UpdateFormParser(updatedFP)
+}
 export async function DeleteFormParser(
   id: string,
   userId: string

@@ -102,6 +102,35 @@ functions:
         Resource:
           - '*'
 
+  UpdateFormParser:
+    handler: src/lambda/http/updateFormParser.handler
+    events:
+      - http:
+          method: patch
+          path: formparser/
+          cors: true
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update a new FP item
+            description: Update a new FP item
+            requestModels:
+              'application/json': UpdateFPRequest
+
+    # TODO: Configure this function
+    # Provide property for setting up CORS, Authorizer, iamRoleStatements
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.FPS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
   DeleteFormParser:
     handler: src/lambda/http/deleteFormParser.handler
     events:
@@ -173,7 +202,7 @@ resources:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
           gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PUT,DELETE'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi

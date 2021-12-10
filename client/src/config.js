@@ -1,7 +1,7 @@
 import configJson from './auth_config.json'
 
-const apiId = 'a75qklyoei'
-export const apiEndpoint = `https://${apiId}.execute-api.ap-southeast-1.amazonaws.com/dev65`
+const apiId = '2t2thom0d6'
+export const apiEndpoint = `https://${apiId}.execute-api.ap-southeast-1.amazonaws.com/dev16`
 
 export function getConfig() {
   const audience =

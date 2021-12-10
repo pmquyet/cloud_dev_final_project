@@ -29,6 +29,15 @@ export async function createFormParser(idToken, newTodo) {
   return response.data
 }
 
+export async function patchFormParser(idToken, fpItem) {
+  await Axios.patch(`${apiEndpoint}/formparser`, JSON.stringify(fpItem), {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
+    }
+  })
+}
+
 export async function deleteFormParser(idToken, id) {
   await Axios.delete(`${apiEndpoint}/formparser/${id}`, {
     headers: {
